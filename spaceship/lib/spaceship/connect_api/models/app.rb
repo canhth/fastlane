@@ -228,17 +228,42 @@ module Spaceship
         end
       end
 
-      def get_latest_app_store_version(client: nil, platform: nil, includes: nil)
+            def get_latest_app_store_version(client: nil, platform: nil, includes: nil)
+        # Set defaults for the API client and platform if not provided
         client ||= Spaceship::ConnectAPI
         platform ||= Spaceship::ConnectAPI::Platform::IOS
+
+        # Define the filter for the request
         filter = {
-          platform: platform
+          platform: platform,
+          appStoreState: 'READY_FOR_SALE' # Filter only for live versions
         }
 
-        # Get the latest version
-        return get_app_store_versions(client: client, filter: filter, includes: includes)
-               .sort_by { |v| Date.parse(v.created_date) }
-               .last
+        # Fetch app store versions and log the full response for debugging
+        versions = get_app_store_versions(client: client, filter: filter, includes: includes)
+
+        # Debugging: Print the full response to the console
+        puts "Fetched Versions: #{versions.inspect}"
+
+        # Handle the case where no versions are returned
+        return nil if versions.empty?
+
+        # Sort by created date and version string for robustness
+        latest_version = versions
+                           .sort_by { |v| Date.parse(v.created_date) }
+                           .last
+
+        # Debugging: Print the latest version details
+        puts "Latest Version by Date: #{latest_version.inspect}"
+
+        # Ensure that the highest version number is chosen
+        highest_version = versions
+                            .max_by { |v| Gem::Version.new(v.version_string) }
+
+        # Debugging: Print the highest version details
+        puts "Highest Version by Version String: #{highest_version.inspect}"
+
+        return highest_version
       end
 
       def get_live_app_store_version(client: nil, platform: nil, includes: Spaceship::ConnectAPI::AppStoreVersion::ESSENTIAL_INCLUDES)
