@@ -236,7 +236,10 @@ module Spaceship
         # Define the filter for the request
         filter = {
           platform: platform,
-          appStoreState: 'READY_FOR_SALE' # Filter only for live versions
+          appVersionState: [
+            Spaceship::ConnectAPI::AppStoreVersion::AppVersionState::READY_FOR_DISTRIBUTION,
+            Spaceship::ConnectAPI::AppStoreVersion::AppVersionState::READY_FOR_SALE
+          ].join(",")
         }
 
         # Fetch app store versions and log the full response for debugging
