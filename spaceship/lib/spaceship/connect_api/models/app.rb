@@ -228,18 +228,18 @@ module Spaceship
         end
       end
 
-            def get_latest_app_store_version(client: nil, platform: nil, includes: nil)
+      def get_latest_app_store_version(client: nil, platform: nil, includes: nil)
         # Set defaults for the API client and platform if not provided
         client ||= Spaceship::ConnectAPI
         platform ||= Spaceship::ConnectAPI::Platform::IOS
 
         # Define the filter for the request
         filter = {
-          platform: platform,
           appVersionState: [
             Spaceship::ConnectAPI::AppStoreVersion::AppVersionState::READY_FOR_DISTRIBUTION,
-            Spaceship::ConnectAPI::AppStoreVersion::AppVersionState::READY_FOR_SALE
-          ].join(",")
+            Spaceship::ConnectAPI::AppStoreVersion::AppStoreState::READY_FOR_SALE
+          ].join(","),
+          platform: platform
         }
 
         # Fetch app store versions and log the full response for debugging
